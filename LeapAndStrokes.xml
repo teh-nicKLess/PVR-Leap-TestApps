@@ -2,13 +2,13 @@
 <Scene base_name="PathsAndStrokes" name_space="Scene" name_suffix="0" persistency="666">
   <Objects>
     <Object base_name="Root" name_space="__global__" name_suffix="0" persistency="666" pickable="0" type="Object" visible="1">
-      <Object ambient="0.3 0.3 0.3 1" base_name="l1" diffuse="1 1 1 1" lightType="directional" name_space="__global__" name_suffix="0" on="1" persistency="666" photometricMap="" pickable="0" shadow="0" shadowColor="0.1 0.1 0.1 1" shadowMapRes="2048" specular="0.1 0.1 0.1 1" type="Light" visible="1">
-        <Object ambient="0.3 0.3 0.3 1" base_name="l2" beacon="l2_beacon" diffuse="1 1 1 1" lightType="directional" name_space="__global__" name_suffix="0" on="1" persistency="666" photometricMap="" pickable="0" shadow="0" shadowColor="0.1 0.1 0.1 1" shadowMapRes="2048" specular="0.1 0.1 0.1 1" type="Light" visible="1">
+      <Object ambient="0.3 0.3 0.3 1" base_name="l1" diffuse="1 1 1 1" lightType="directional" name_space="__global__" name_suffix="0" on="1" persistency="666" photometricMap="" pickable="0" shadow="0" shadowColor="0.1 0.1 0.1 1" shadowMapRes="2048" shadowVolume="1e+06 1e+06 1e+06 -1e+06 -1e+06 -1e+06 1" specular="0.1 0.1 0.1 1" type="Light" visible="1">
+        <Object ambient="0.3 0.3 0.3 1" base_name="l2" beacon="l2_beacon" diffuse="1 1 1 1" lightType="directional" name_space="__global__" name_suffix="0" on="1" persistency="666" photometricMap="" pickable="0" shadow="0" shadowColor="0.1 0.1 0.1 1" shadowMapRes="2048" shadowVolume="1e+06 1e+06 1e+06 -1e+06 -1e+06 -1e+06 1" specular="0.1 0.1 0.1 1" type="Light" visible="1">
           <Object at="0.2 0.2 1" at_dir="0" base_name="l2_beacon" from="0 0 0" light="l2" name_space="__global__" name_suffix="0" persistency="666" pickable="0" scale="1 1 1" type="LightBeacon" up="0 1 0" visible="1">
             <constraint persistency="666"/>
           </Object>
           <Object base_name="strokes" name_space="__global__" name_suffix="0" persistency="666" pickable="0" type="Object" visible="1"/>
-          <Object accept_root="1" aspect="1" at="-0.00286981 0.101817 0.134432" at_dir="0" base_name="Default" far="250" fov="1.0472" from="0.000587963 -0.0208601 3.94856" name_space="__global__" name_suffix="0" near="0.1" orthoSize="100" persistency="666" pickable="0" scale="1 1 1" type="Camera" up="0 1 0" visible="1">
+          <Object accept_root="1" aspect="1" at="0 0 0.5" at_dir="1" base_name="Default" far="250" fov="1.0472" from="0 0 1.5" name_space="__global__" name_suffix="0" near="0.1" orthoSize="100" persistency="666" pickable="0" scale="1 1 1" type="Camera" up="0 1 0" visible="1">
             <constraint persistency="666"/>
           </Object>
           <Object at="0 1 -1" at_dir="1" base_name="Box" from="0 1 0" name_space="__global__" name_suffix="0" persistency="666" pickable="1" scale="1 1 1" sourceparam="Box 0.2 0.2 0.2 1 1 1" sourcetype="3" type="Geometry" up="0 1 0" visible="1">
@@ -18,21 +18,16 @@
       </Object>
     </Object>
   </Objects>
-  <Rendering deferred_rendering="0" frustum_culling="1" fxaa="0" hmdd="0" marker="0" occlusion_culling="0" persistency="666" ssao="0" ssao_kernel="4" ssao_noise="4" ssao_radius="0.02" two_sided="1"/>
+  <Cameras activeCam="Default" persistency="666"/>
+  <Rendering deferred_rendering="0" fogColor="0.5 0.5 0.5 1" fogParams="0 0 100 0.1" frustum_culling="1" fxaa="0" hmdd="0" marker="0" occlusion_culling="0" persistency="666" ssao="0" ssao_kernel="4" ssao_noise="4" ssao_radius="0.02" two_sided="1"/>
   <Scripts persistency="666">
-    <Script base_name="chooseColor" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+    <Script base_name="__init" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
       <core>
 	import VR
-	if hasattr(VR, 'colChooser'):
-		VR.colChooser.resolve(dev)
-		VR.col = VR.colChooser.get()
-</core>
-      <trig type="on_device" dev="mouse" state="Pressed" param="" key="1" base_name="trigger" name_space="__global__" name_suffix="2" persistency="666"/>
-      <trig type="on_device" dev="flystick" state="Pressed" param="" key="2" base_name="trigger" name_space="__global__" name_suffix="3" persistency="666"/>
-    </Script>
-    <Script base_name="init" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
-      <core>
-	import VR
+
+		
+	### Set up Color Chooser
+	
 	VR.lastPos = [0,1,0]
 	VR.lastNorm = [0,1,0]
 	
@@ -55,41 +50,246 @@
 		VR.strokes.append(s)
 		root.addChild(s)
 	
+	### Set up camera
+	
 	cam = VR.getRoot().find('Default')
 	cam.setIdentity()
-	cam.setFrom([0,0,1])
+	cam.setFrom([0,0,1.5])
 	pencil.setIdentity()
 	pencil.setPosition(VR.lastPos)
 	
+	### Set up Leaps
+	
+	for i in range(4):
+		if VR.find("hand_left" +  str(i)):
+			VR.find("hand_left" +  str(i)).destroy()
+		if VR.find("hand_right" +  str(i)):
+			VR.find("hand_right" +  str(i)).destroy()
+		if VR.find("Base" + str(i)):
+			VR.find("Base" + str(i)).destroy()
+	
+	leap = [1,2,3,4]
+	hand_left = [1,2,3,4]
+	hand_right = [1,2,3,4]
+	VR.leap = [1,2,3,4]
+	
+	VR.calibLeap = 0
+	VR.calibMode = 'p'
+	VR.calibReset = False
+	
+	print "To calibrate the leaps, choose one leap with [numpad 0]\n"\
+	+ "and one variable (pos, dir, up) with [numpad +].\n"\
+	+ "Calibrate the variable in x,y,z using the arrow keys (x,y) "\
+	+"and pageUp/pageDown (z). \nThis works also with the numpad keys.\n"\
+	+"Reset calibration of active leap with [r]."
+	
+	print 
+
+	base = [1,2,3,4]
+	
+	for i in range(4):
+		base[i] = VR.Geometry("Base"+str(i))
+		VR.find("l2").addChild(base[i])
+		base[i].setFrom([(-0.74 + i/2.0),0,0])
+		base[i].setPrimitive("Sphere 0.05 2")
+		
+	
+
+	# First Leap
 	leap = VR.find('leap')
 	
-	hand_left = VR.HandGeo('hand_left')
-	hand_left.setLeft()
-	hand_left.connectToLeap(leap)
-	VR.find('Default').addChild(hand_left)
+	hand_left[0] = VR.HandGeo('hand_left0')
+	hand_left[0].setLeft()
+	hand_left[0].connectToLeap(leap)
+	base[0].addChild(hand_left[0])
 	
-	hand_right = VR.HandGeo('hand_right')
-	hand_right.setRight()
-	hand_right.connectToLeap(leap) 
-	VR.find('Default').addChild(hand_right)
+	hand_right[0] = VR.HandGeo('hand_right0')
+	hand_right[0].setRight()
+	hand_right[0].connectToLeap(leap) 
+	base[0].addChild(hand_right[0])
 		 	
-	 	
-	VR.leap = [leap, hand_left, hand_right]
+	VR.leap[0] = [leap, hand_left[0], hand_right[0]]
+	
+	for i in range(1, 4):
+		leap = VR.find("leap."+str(i))
+		
+		hand_left[i] = VR.HandGeo('hand_left'+str(i))
+		hand_left[i].setLeft()
+		hand_left[i].connectToLeap(leap)
+		base[i].addChild(hand_left[i])
+	
+		hand_right[i] = VR.HandGeo('hand_right'+str(i))
+		hand_right[i].setRight()
+		hand_right[i].connectToLeap(leap) 
+		base[i].addChild(hand_right[i])
+			 	
+		VR.leap[i] = [leap, hand_left[i], hand_right[i]]
 </core>
-      <arg type="VRPyGeometryType" value="Box" base_name="pencil" name_space="init" name_suffix="0" persistency="666"/>
-      <arg type="VRPyObjectType" value="strokes" base_name="root" name_space="init" name_suffix="0" persistency="666"/>
-      <trig type="on_scene_load" dev="" state="pressed" param="" key="0" base_name="trigger" name_space="__global__" name_suffix="0" persistency="666"/>
+      <arg type="VRPyGeometryType" value="Box" base_name="pencil" name_space="__init" name_suffix="0" persistency="666"/>
+      <arg type="VRPyObjectType" value="strokes" base_name="root" name_space="__init" name_suffix="0" persistency="666"/>
+      <trig type="on_scene_load" dev="" state="Released" param="" key="0" base_name="trigger" name_space="__global__" name_suffix="0" persistency="666"/>
     </Script>
-    <Script base_name="leapTest" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+    <Script base_name="_keyboardInput" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
       <core>
 	import VR
 	
-	if not hasattr(VR, "leapPos"):
-		VR.leapPos = {}
-		
-		
+	key = dev.getKey()
 	
-	print dir(VR.leap[0])
+	currLeap = "leap" + ("" if VR.calibLeap==1 else ("."+str(VR.calibLeap - 1)))
+	
+	modeName = ""
+	if VR.calibMode == 'p':
+		modeName = "position"
+	elif VR.calibMode == 'd':
+		modeName = "direction"
+	elif VR.calibMode == 'u':
+		modeName = "up-vector"
+	
+	
+	def setCalibration():
+		VR.calibLeap = (VR.calibLeap + 1) % 5
+		if VR.calibLeap == 0:
+			print "Calibrating stopped."
+		else:
+			currLeap = "leap" + ("" if VR.calibLeap==1 else ("."+str(VR.calibLeap - 1)))
+			print "Now calibrating [" + modeName + "] for " + currLeap
+			
+	def resetCalibration():
+		print "Resetting calibration of " + currLeap
+		leap = VR.find(currLeap)
+		leap.calibrate([0,0,0], [0,0,-1], [0,1,0])
+			
+	def switchMode():
+		if currLeap == "leap.-1":
+			print "No leap selected."
+			return
+			
+		if VR.calibMode == 'u':
+			VR.calibMode = 'p'
+			modeName = "position"
+		elif VR.calibMode == 'p':
+			VR.calibMode = 'd'
+			modeName = "direction"
+		elif VR.calibMode == 'd':
+			VR.calibMode = 'u'
+			modeName = "up-vector"
+			
+		print "Now calibrating [" + modeName + "] for " + currLeap
+			
+	if VR.calibReset == True and key != ord('y'):
+		VR.calibReset = False
+
+	if key in [65438, 65456]: #numpad 0
+		setCalibration()
+		return
+	elif key == 65451: #numpad +
+		switchMode()
+		return
+	elif key == ord('r'):
+		print "Reset calibration of " + currLeap + "? [y/n]"
+		VR.calibReset = True
+	elif key == ord('y') and VR.calibReset == True:
+		resetCalibration()
+		return
+		
+	if key == 65453: #numpad -
+		VR.flipUp()
+
+		
+	if key in [65361, 65430, 65460]: #left, numpad left
+		VR.calibrate([-1,0,0])
+	if key in [65362, 65431, 65464]: #up, numpad up
+		VR.calibrate([0,1,0])
+	if key in [65363, 65432, 65462]: #right, numpad right
+		VR.calibrate([1,0,0])
+	if key in [65364, 65433, 65458]: #down, numpad down
+		VR.calibrate([0,-1,0])
+	if key in [65365, 65434, 65465]: #pageUp, numpad pageUp
+		VR.calibrate([0,0,-1])
+	if key in [65366, 65435, 65459]: #pageDown, numpad pageDown
+		VR.calibrate([0,0,1])
+		
+</core>
+      <trig type="on_device" dev="keyboard" state="Pressed" param="" key="-1" base_name="trigger" name_space="__global__" name_suffix="10" persistency="666"/>
+    </Script>
+    <Script base_name="calibrate" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+	
+	def norm(vec):
+		length = vec[0]**2 + vec[1]**2 + vec[2]**2
+		vec[0] /= length
+		vec[1] /= length
+		vec[2] /= length
+		
+		return vec
+	
+	if VR.calibLeap == 0:
+		print "No leap active for calibration."\
+		+" Press [numpad 0] to switch between leaps."
+		return
+	if VR.calibMode == 'n':
+		print "No calibration mode selected."\
+		+ " Switch between modes with [numpad +]."
+		return
+		
+	leapId = VR.calibLeap - 1
+	leapName = "leap"
+	if leapId &gt; 0:
+		leapName += "." + str(leapId)
+	
+	leap = VR.find(leapName)
+
+	leapPos = leap.getPose().pos()
+	leapDir = leap.getPose().dir()
+	leapUp = leap.getPose().up()
+	#print "Prechange:", leapPos, leapDir, leapUp 
+	
+	
+	if VR.calibMode == 'p':
+		leapPos += map(lambda x: 0.02*x, changeVec)
+	elif VR.calibMode == 'd':
+		leapDir += map(lambda x: 0.1*x, changeVec)
+		leapDir = norm(leapDir)
+	elif VR.calibMode == 'u':
+		leapUp += map(lambda x: 0.1*x, changeVec)
+		leapUp = norm(leapUp)
+
+	#print "Postchange:", leapPos, leapDir, leapUp 
+		
+	leap.calibrate(leapPos, leapDir, leapUp)
+</core>
+      <arg type="float" value="0" base_name="changeVec" name_space="calibrate" name_suffix="0" persistency="666"/>
+    </Script>
+    <Script base_name="chooseColor" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+	if hasattr(VR, 'colChooser'):
+		VR.colChooser.resolve(dev)
+		VR.col = VR.colChooser.get()
+</core>
+      <trig type="on_device" dev="mouse" state="Pressed" param="" key="1" base_name="trigger" name_space="__global__" name_suffix="2" persistency="666"/>
+      <trig type="on_device" dev="flystick" state="Pressed" param="" key="2" base_name="trigger" name_space="__global__" name_suffix="3" persistency="666"/>
+    </Script>
+    <Script base_name="flipUp" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
+      <core>
+	import VR
+	
+	leapId = VR.calibLeap - 1
+	leapName = "leap"
+	if leapId &gt; 0:
+		leapName += "." + str(leapId)
+	
+	leap = VR.find(leapName)
+	
+	leapPos = leap.getPose().pos()
+	leapDir = leap.getPose().dir()
+	leapUp = leap.getPose().up()
+	
+	leapUp =  [-1*leapUp[0], -1*leapUp[1], -1*leapUp[2]]
+#	print map(lambda x: -1*x, leapUp)
+	
+	leap.calibrate(leapPos, leapDir, leapUp)
 </core>
     </Script>
     <Script base_name="reset" group="no group" name_space="__script__" name_suffix="0" persistency="666" server="server1" type="Python">
@@ -167,7 +367,7 @@
     </Script>
   </Scripts>
   <Sockets persistency="666"/>
-  <Background color="1 1 1" format=".png" path="" persistency="666" type="0"/>
+  <Background color="1 1 1" format=".jpg" path="./gfx/skybox/sky" persistency="666" type="2"/>
   <Navigation active="FlyWalk" persistency="666"/>
   <Materials persistency="666"/>
   <Semantics persistency="666"/>
